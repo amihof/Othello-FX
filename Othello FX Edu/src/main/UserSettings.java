@@ -23,7 +23,7 @@ public class UserSettings {
 	/**
 	 * Determines the game mode to use
 	 */
-	public static final GameMode GAME_MODE = GameMode.AGENT_VS_AGENT;
+	public static final GameMode GAME_MODE = GameMode.HUMAN_VS_AGENT;
 	/**
 	 * Delay before the game starts when the agent is playing
 	 */
@@ -42,7 +42,7 @@ public class UserSettings {
 	 * has passed. Adjust in order for play consistency. when
 	 * Human vs Agent is activated.
 	 */
-	public static final int MIN_SEARCH_TIME = 0;
+	public static final int MIN_SEARCH_TIME = 500;
 	
 	/**
 	 * Used for defining the search time

@@ -2,6 +2,7 @@ package main;
 
 import com.eudycontreras.othello.capsules.AgentMove;
 import com.eudycontreras.othello.capsules.MoveWrapper;
+import com.eudycontreras.othello.models.MinMaxNode;
 
 /**
  * <H2>Created by</h2> Eudy Contreras
@@ -26,7 +27,8 @@ import com.eudycontreras.othello.capsules.MoveWrapper;
  */
 public class ExampleMove extends AgentMove{
 
-	public ExampleMove() {
+	public ExampleMove(MinMaxNode node) {
+
 		// TODO Auto-generated constructor stub
 	}
 

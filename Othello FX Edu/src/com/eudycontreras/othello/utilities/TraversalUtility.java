@@ -247,7 +247,6 @@ public class TraversalUtility {
 		DirectionWrapper wrapper = getNeighbor(cell, neighbor);
 
 		if (wrapper != null) {
-
 			if (isTraversable(origin, wrapper.getCell())) {
 
 				path = new TraversalWrapper(wrapper.getCell().getIndex(), cell.getIndex());

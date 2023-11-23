@@ -1,10 +1,6 @@
 package com.eudycontreras.othello.controllers;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import com.eudycontreras.othello.application.Othello;
 import com.eudycontreras.othello.application.OthelloSettings;
@@ -19,6 +15,7 @@ import com.eudycontreras.othello.exceptions.NotImplementedException;
 import com.eudycontreras.othello.models.GameBoard;
 import com.eudycontreras.othello.models.GameBoardCell;
 import com.eudycontreras.othello.models.GameBoardState;
+import com.eudycontreras.othello.models.MinMaxNode;
 import com.eudycontreras.othello.threading.ThreadManager;
 import com.eudycontreras.othello.utilities.GameTreeUtility;
 import com.eudycontreras.othello.utilities.TraversalUtility;
@@ -32,6 +29,7 @@ import static main.UserSettings.G;
 import static main.UserSettings.H;
 
 import javafx.application.Platform;
+import main.ExampleMove;
 import main.UserSettings;
 
 /**
@@ -51,6 +49,12 @@ public class AgentController {
 	public static final DeepeningType DEEPENING = UserSettings.DEEPENING;
 
 	public static final boolean PRINT_BOARD_STATES = false;
+
+	/**
+	 * hashmap vi har skapat
+	 */
+	public static HashMap<GameBoardState, MinMaxNode> stateHashMap = new HashMap<>();
+	public static int MAX_DEPTH = 10;
 	
 	
 	public static final int NEIGHBOR_OFFSET_X[] = {-1, -1, 0, 1, 1, 1, 0, -1};
@@ -205,7 +209,121 @@ public class AgentController {
 	public static MoveWrapper getExampleMove(GameBoardState gameState) {
 		return getExampleMove(gameState, PlayerTurn.PLAYER_ONE);
 	}
-	
+
+
+	/**
+	 * metoder vi har gjort
+	 * @param gameState
+	 * @return
+	 */
+	public static ExampleMove getMove(GameBoardState gameState){
+		return getMove(gameState, PlayerTurn.PLAYER_ONE);
+	}
+
+	public static ExampleMove getMove(GameBoardState gameState, PlayerTurn playerTurn){
+
+		if (stateHashMap.containsKey(gameState)){
+			return AgentController.findMove(stateHashMap.get(gameState));
+		}
+		else {
+			MinMaxNode root = createMinMaxTree(gameState, playerTurn);
+
+			return AgentController.findMove(root);
+		}
+	}
+
+	public static ExampleMove findMove(MinMaxNode node){
+		MinMaxNode bestMove = alphaBetaPruning(node, 0);
+
+		return new ExampleMove(bestMove);
+	}
+
+	/**
+	 * inte klar
+	 * @param node
+	 * @param depth
+	 * @return
+	 */
+	public static MinMaxNode alphaBetaPruning(MinMaxNode node, int depth){
+		if (depth == MAX_DEPTH-1 || node.getState().isTerminal()){
+			return node;
+		}
+
+		if (node.getIsMax()){
+			node.setValue();
+			for (MinMaxNode child : node.getChildren()) {
+				MinMaxNode eva = alphaBetaPruning(child, depth+1);
+
+			}
+		}
+
+		return null;
+	}
+
+	public static ExampleMove minValue(MinMaxNode node){
+
+		return null;
+	}
+
+	public static ExampleMove maxValue(MinMaxNode node){
+
+		return null;
+	}
+
+
+	public static MinMaxNode createMinMaxTree(GameBoardState gameState, PlayerTurn playerTurn) {
+		MinMaxNode root = new MinMaxNode(gameState);
+
+		Stack<MinMaxNode> treeStack = new Stack<>();
+		treeStack.push(root);
+
+		while(!treeStack.isEmpty()){
+			MinMaxNode currentNode = treeStack.pop();
+			GameBoardState currentNodeGameState = currentNode.getState();
+
+			List<ObjectiveWrapper> moves = getAvailableMoves(currentNode.getState(), playerTurn);
+
+			if (currentNode.getIsMax()){
+				moves.sort(new Comparator<ObjectiveWrapper>() {
+					@Override
+					public int compare(ObjectiveWrapper o1, ObjectiveWrapper o2) {
+						return Integer.compare(o2.getPath().size(), o1.getPath().size());
+					}
+				});
+			}else {
+				moves.sort(new Comparator<ObjectiveWrapper>() {
+					@Override
+					public int compare(ObjectiveWrapper o1, ObjectiveWrapper o2) {
+						return Integer.compare(o1.getPath().size(), o2.getPath().size());
+					}
+				});
+			}
+
+			if(moves.isEmpty() && currentNodeGameState.isTerminal()){
+				currentNode.setValue(); //när det inte finns några available moves
+			}
+			else if(moves.isEmpty()){
+				treeStack.push(new MinMaxNode(currentNodeGameState, currentNode));
+			}
+
+			if (!moves.isEmpty()){
+				for (ObjectiveWrapper move : moves) {
+					GameBoardState newState = getNewState(currentNodeGameState, move);
+
+					MinMaxNode newNode = new MinMaxNode(newState, currentNode); //currentNode = parent
+					stateHashMap.put(newState, newNode);
+
+					treeStack.push(newNode);
+				}
+			}
+		}
+
+		return root;
+	}
+	/**
+	 *hit
+	 */
+
 	public static MoveWrapper getExampleMove(GameBoardState gameState, PlayerTurn playerTurn) {
 		int value = new Random().nextInt(3);
 		
