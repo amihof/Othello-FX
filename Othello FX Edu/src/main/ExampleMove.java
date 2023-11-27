@@ -28,8 +28,8 @@ import com.eudycontreras.othello.capsules.ObjectiveWrapper;
 public class ExampleMove extends AgentMove{
 
 	public ExampleMove(ObjectiveWrapper objectiveWrapper) {
-		System.out.println("Column:" + objectiveWrapper.getObjectiveCell().getCol());
-		System.out.println("Row:" + objectiveWrapper.getObjectiveCell().getRow());
+		//System.out.println("Column:" + objectiveWrapper.getObjectiveCell().getCol());
+		//System.out.println("Row:" + objectiveWrapper.getObjectiveCell().getRow());
 		setObjectiveInformation(objectiveWrapper);
 
 	}
@@ -38,9 +38,7 @@ public class ExampleMove extends AgentMove{
 		if(objective.getObjectiveCell() == null){
 			return;
 		}
-		//this.target = objective.getObjectiveCell().getCellState();
 		this.moveIndex = objective.getObjectiveCell().getIndex();
-		//this.startIndex = objective.getCurrentCell().getIndex();
 	}
 
 	/**
@@ -58,8 +56,7 @@ public class ExampleMove extends AgentMove{
 	 */
 	@Override
 	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+		return moveIndex != null;
 	}
 
 }

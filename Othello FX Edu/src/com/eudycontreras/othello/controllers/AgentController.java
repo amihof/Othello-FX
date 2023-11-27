@@ -52,7 +52,7 @@ public class AgentController {
 	/**
 	 * hashmap vi har skapat
 	 */
-	public static int MAX_DEPTH = 2;
+	public static int MAX_DEPTH = 3;
 	
 	
 	public static final int NEIGHBOR_OFFSET_X[] = {-1, -1, 0, 1, 1, 1, 0, -1};
@@ -284,7 +284,7 @@ public class AgentController {
 		treeStack.push(gameState);
 
 		int dept = 0;
-		while(!treeStack.isEmpty() && dept < MAX_DEPTH){
+		while(!treeStack.isEmpty() && dept < MAX_DEPTH-1){
 			GameBoardState currentNodeGameState = treeStack.pop();
 
 			List<ObjectiveWrapper> moves = getAvailableMoves(currentNodeGameState, playerTurn);
