@@ -42,7 +42,7 @@ public class UserSettings {
 	 * has passed. Adjust in order for play consistency. when
 	 * Human vs Agent is activated.
 	 */
-	public static final int MIN_SEARCH_TIME = 500;
+	public static final int MIN_SEARCH_TIME = 0;
 	
 	/**
 	 * Used for defining the search time

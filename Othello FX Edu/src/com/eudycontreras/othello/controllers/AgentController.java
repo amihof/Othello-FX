@@ -52,7 +52,7 @@ public class AgentController {
 	/**
 	 * hashmap vi har skapat
 	 */
-	public static int MAX_DEPTH = 3;
+	public static int MAX_DEPTH = 10;
 	
 	
 	public static final int NEIGHBOR_OFFSET_X[] = {-1, -1, 0, 1, 1, 1, 0, -1};
@@ -233,6 +233,7 @@ public class AgentController {
 	public static ExampleMove findMove(GameBoardState node){
 
 		GameBoardState state = alphaBetaPruning(node,0, MIN_VALUE, MAX_VALUE, true);
+
 		ObjectiveWrapper wrapper = state.getLeadingMove();
 		return new ExampleMove(wrapper);
 	}
@@ -249,33 +250,29 @@ public class AgentController {
 		}
 
 		if (maximizingPlayer){
-			GameBoardState maxEvaluation = new GameBoardState(MIN_VALUE);
-
 			for (GameBoardState child : node.getChildStates()) {
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false);
-				if(maxEvaluation.getBlackCount() != Math.max(evaluation.getBlackCount(), maxEvaluation.getBlackCount())){
-					maxEvaluation = evaluation;
+				if(node.getWhiteCount() != Math.max(evaluation.getWhiteCount(), node.getWhiteCount())){
+					node = evaluation;
 				}
 				if (alpha >= beta){
 					break;
 				}
-				alpha = Math.max(maxEvaluation.getBlackCount(), evaluation.getBlackCount()); //Math.max(maxEvaluation, evaluation.getValue());
+				alpha = Math.max(node.getWhiteCount(), evaluation.getWhiteCount()); //Math.max(maxEvaluation, evaluation.getValue());
 			}
-			return maxEvaluation;
 		} else{
-			GameBoardState minEvalutation = new GameBoardState(MAX_VALUE);
 			for (GameBoardState child : node.getChildStates()) {
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true);
-				if(minEvalutation.getBlackCount() != Math.min(evaluation.getBlackCount(), minEvalutation.getBlackCount())){
-					minEvalutation = evaluation;
+				if(node.getWhiteCount() != Math.min(evaluation.getWhiteCount(), node.getWhiteCount())){
+					node = evaluation;
 				}
 				if (alpha >= beta){
 					break;
 				}
-				beta = Math.min(minEvalutation.getBlackCount(), evaluation.getBlackCount());
+				beta = Math.min(node.getWhiteCount(), evaluation.getWhiteCount());
 			}
-			return minEvalutation;
 		}
+		return node;
 	}
 
 
@@ -306,6 +303,7 @@ public class AgentController {
 					}
 				});
 			} */
+
 
 			if(moves.isEmpty()){
 				treeStack.push(currentNodeGameState);

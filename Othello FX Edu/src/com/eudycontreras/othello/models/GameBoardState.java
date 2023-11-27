@@ -42,10 +42,6 @@ public class GameBoardState {
 	
 	private List<GameBoardState> childStates;
 
-	public GameBoardState(int value){
-		setBlackCount(value);
-	}
-
 	public GameBoardState(GameBoard gameBoard){
 		this(gameBoard, false);
 	}
