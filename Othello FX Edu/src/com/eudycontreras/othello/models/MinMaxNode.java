@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class MinMaxNode {
     GameBoardState state;
-    LinkedList<MinMaxNode> children;
+    LinkedList<MinMaxNode> children = new LinkedList<>();
     MinMaxNode parent;
     int alphaValue = Integer.MIN_VALUE;
     int betaValue = Integer.MAX_VALUE;
@@ -13,11 +13,15 @@ public class MinMaxNode {
     boolean isMax;
 
 
+    public MinMaxNode(int value){
+        this.value = value;
+    }
+
     public MinMaxNode(GameBoardState state){
         this.state = state;
         isRoot = true;
         isMax = true;
-
+        this.value = state.getBlackCount();
     }
 
     public MinMaxNode(GameBoardState state, MinMaxNode parent){
@@ -32,8 +36,8 @@ public class MinMaxNode {
         children.add(minMaxNode);
     }
 
-    public void setValue() {
-        this.value = state.getBlackCount();
+    public int getValue() {
+        return value;
     }
 
     public GameBoardState getState() {
@@ -48,7 +52,19 @@ public class MinMaxNode {
         this.alphaValue = alpha;
     }
 
+    public void setBeta(int betaValue) {
+        this.betaValue = betaValue;
+    }
+
     public LinkedList<MinMaxNode> getChildren() {
         return children;
+    }
+
+    public int getAlphaValue() {
+        return alphaValue;
+    }
+
+    public int getBetaValue() {
+        return betaValue;
     }
 }

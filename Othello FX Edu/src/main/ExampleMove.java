@@ -29,7 +29,6 @@ public class ExampleMove extends AgentMove{
 
 	public ExampleMove(MinMaxNode node) {
 
-		// TODO Auto-generated constructor stub
 	}
 
 	/**

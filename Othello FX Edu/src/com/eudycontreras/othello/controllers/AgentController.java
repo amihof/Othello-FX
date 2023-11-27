@@ -54,7 +54,7 @@ public class AgentController {
 	 * hashmap vi har skapat
 	 */
 	public static HashMap<GameBoardState, MinMaxNode> stateHashMap = new HashMap<>();
-	public static int MAX_DEPTH = 10;
+	public static int MAX_DEPTH = 2;
 	
 	
 	public static final int NEIGHBOR_OFFSET_X[] = {-1, -1, 0, 1, 1, 1, 0, -1};
@@ -250,14 +250,32 @@ public class AgentController {
 		}
 
 		if (node.getIsMax()){
-			node.setValue();
+			MinMaxNode maxChild = new MinMaxNode(MIN_VALUE);
 			for (MinMaxNode child : node.getChildren()) {
-				MinMaxNode eva = alphaBetaPruning(child, depth+1);
-
+				MinMaxNode evaluation = alphaBetaPruning(child, depth+1);
+				if(maxChild.getValue() != Math.max(child.getValue(), maxChild.getValue())){
+					maxChild = child;
+				}
+				node.setAlpha(Math.max(maxChild.getValue(), evaluation.getValue())); //Math.max(maxEvaluation, evaluation.getValue());
+				if (node.getAlphaValue() >= node.getBetaValue()){
+					break;
+				}
 			}
+			return maxChild;
+		} else{
+			MinMaxNode minChild = new MinMaxNode(MAX_VALUE);
+			for (MinMaxNode child : node.getChildren()) {
+				MinMaxNode evaluation = alphaBetaPruning(child, depth+1);
+				if(minChild.getValue() != Math.min(child.getValue(), minChild.getValue())){
+					minChild = child;
+				}
+				node.setBeta(Math.min(minChild.getValue(), evaluation.getValue()));
+				if (node.getAlphaValue() >= node.getBetaValue()){
+					break;
+				}
+			}
+			return minChild;
 		}
-
-		return null;
 	}
 
 	public static ExampleMove minValue(MinMaxNode node){
@@ -277,7 +295,8 @@ public class AgentController {
 		Stack<MinMaxNode> treeStack = new Stack<>();
 		treeStack.push(root);
 
-		while(!treeStack.isEmpty()){
+		int dept = 0;
+		while(!treeStack.isEmpty() && dept < MAX_DEPTH){
 			MinMaxNode currentNode = treeStack.pop();
 			GameBoardState currentNodeGameState = currentNode.getState();
 
@@ -299,14 +318,9 @@ public class AgentController {
 				});
 			}
 
-			if(moves.isEmpty() && currentNodeGameState.isTerminal()){
-				currentNode.setValue(); //när det inte finns några available moves
-			}
-			else if(moves.isEmpty()){
+			if(moves.isEmpty()){
 				treeStack.push(new MinMaxNode(currentNodeGameState, currentNode));
-			}
-
-			if (!moves.isEmpty()){
+			} else {
 				for (ObjectiveWrapper move : moves) {
 					GameBoardState newState = getNewState(currentNodeGameState, move);
 
@@ -316,8 +330,8 @@ public class AgentController {
 					treeStack.push(newNode);
 				}
 			}
+			dept++;
 		}
-
 		return root;
 	}
 	/**
