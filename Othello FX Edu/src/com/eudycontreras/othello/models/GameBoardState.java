@@ -30,7 +30,7 @@ public class GameBoardState {
 	
 	private boolean visited = false;
 	
-	private boolean isRoot = false; 
+	private boolean isRoot = false;
 
 	private BoardCellState playerTurn;
 	
@@ -41,7 +41,11 @@ public class GameBoardState {
 	private GameBoardState parentState;
 	
 	private List<GameBoardState> childStates;
-	
+
+	public GameBoardState(int value){
+		setBlackCount(value);
+	}
+
 	public GameBoardState(GameBoard gameBoard){
 		this(gameBoard, false);
 	}
@@ -304,4 +308,5 @@ public class GameBoardState {
 			}	
 		};
 	}
+
 }

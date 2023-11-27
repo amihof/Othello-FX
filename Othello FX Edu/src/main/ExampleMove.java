@@ -2,7 +2,7 @@ package main;
 
 import com.eudycontreras.othello.capsules.AgentMove;
 import com.eudycontreras.othello.capsules.MoveWrapper;
-import com.eudycontreras.othello.models.MinMaxNode;
+import com.eudycontreras.othello.capsules.ObjectiveWrapper;
 
 /**
  * <H2>Created by</h2> Eudy Contreras
@@ -27,8 +27,20 @@ import com.eudycontreras.othello.models.MinMaxNode;
  */
 public class ExampleMove extends AgentMove{
 
-	public ExampleMove(MinMaxNode node) {
+	public ExampleMove(ObjectiveWrapper objectiveWrapper) {
+		System.out.println("Column:" + objectiveWrapper.getObjectiveCell().getCol());
+		System.out.println("Row:" + objectiveWrapper.getObjectiveCell().getRow());
+		setObjectiveInformation(objectiveWrapper);
 
+	}
+
+	public void setObjectiveInformation(ObjectiveWrapper objective){
+		if(objective.getObjectiveCell() == null){
+			return;
+		}
+		//this.target = objective.getObjectiveCell().getCellState();
+		this.moveIndex = objective.getObjectiveCell().getIndex();
+		//this.startIndex = objective.getCurrentCell().getIndex();
 	}
 
 	/**

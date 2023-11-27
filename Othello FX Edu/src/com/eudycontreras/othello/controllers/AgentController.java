@@ -15,7 +15,6 @@ import com.eudycontreras.othello.exceptions.NotImplementedException;
 import com.eudycontreras.othello.models.GameBoard;
 import com.eudycontreras.othello.models.GameBoardCell;
 import com.eudycontreras.othello.models.GameBoardState;
-import com.eudycontreras.othello.models.MinMaxNode;
 import com.eudycontreras.othello.threading.ThreadManager;
 import com.eudycontreras.othello.utilities.GameTreeUtility;
 import com.eudycontreras.othello.utilities.TraversalUtility;
@@ -53,7 +52,6 @@ public class AgentController {
 	/**
 	 * hashmap vi har skapat
 	 */
-	public static HashMap<GameBoardState, MinMaxNode> stateHashMap = new HashMap<>();
 	public static int MAX_DEPTH = 2;
 	
 	
@@ -222,20 +220,21 @@ public class AgentController {
 
 	public static ExampleMove getMove(GameBoardState gameState, PlayerTurn playerTurn){
 
-		if (stateHashMap.containsKey(gameState)){
+		/*if (stateHashMap.containsKey(gameState)){
 			return AgentController.findMove(stateHashMap.get(gameState));
 		}
-		else {
-			MinMaxNode root = createMinMaxTree(gameState, playerTurn);
+		else { */
+			GameBoardState root = createMinMaxTree(gameState, playerTurn);
 
 			return AgentController.findMove(root);
-		}
+		//}
 	}
 
-	public static ExampleMove findMove(MinMaxNode node){
-		MinMaxNode bestMove = alphaBetaPruning(node, 0);
+	public static ExampleMove findMove(GameBoardState node){
 
-		return new ExampleMove(bestMove);
+		GameBoardState state = alphaBetaPruning(node,0, MIN_VALUE, MAX_VALUE, true);
+		ObjectiveWrapper wrapper = state.getLeadingMove();
+		return new ExampleMove(wrapper);
 	}
 
 	/**
@@ -244,65 +243,55 @@ public class AgentController {
 	 * @param depth
 	 * @return
 	 */
-	public static MinMaxNode alphaBetaPruning(MinMaxNode node, int depth){
-		if (depth == MAX_DEPTH-1 || node.getState().isTerminal()){
-			return node;
+	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer){
+		if (depth == MAX_DEPTH-1 || node.isTerminal()){
+			return node; // Kom tillbaka hit sen!
 		}
 
-		if (node.getIsMax()){
-			MinMaxNode maxChild = new MinMaxNode(MIN_VALUE);
-			for (MinMaxNode child : node.getChildren()) {
-				MinMaxNode evaluation = alphaBetaPruning(child, depth+1);
-				if(maxChild.getValue() != Math.max(child.getValue(), maxChild.getValue())){
-					maxChild = child;
+		if (maximizingPlayer){
+			GameBoardState maxEvaluation = new GameBoardState(MIN_VALUE);
+
+			for (GameBoardState child : node.getChildStates()) {
+				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false);
+				if(maxEvaluation.getBlackCount() != Math.max(evaluation.getBlackCount(), maxEvaluation.getBlackCount())){
+					maxEvaluation = evaluation;
 				}
-				node.setAlpha(Math.max(maxChild.getValue(), evaluation.getValue())); //Math.max(maxEvaluation, evaluation.getValue());
-				if (node.getAlphaValue() >= node.getBetaValue()){
+				if (alpha >= beta){
 					break;
 				}
+				alpha = Math.max(maxEvaluation.getBlackCount(), evaluation.getBlackCount()); //Math.max(maxEvaluation, evaluation.getValue());
 			}
-			return maxChild;
+			return maxEvaluation;
 		} else{
-			MinMaxNode minChild = new MinMaxNode(MAX_VALUE);
-			for (MinMaxNode child : node.getChildren()) {
-				MinMaxNode evaluation = alphaBetaPruning(child, depth+1);
-				if(minChild.getValue() != Math.min(child.getValue(), minChild.getValue())){
-					minChild = child;
+			GameBoardState minEvalutation = new GameBoardState(MAX_VALUE);
+			for (GameBoardState child : node.getChildStates()) {
+				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true);
+				if(minEvalutation.getBlackCount() != Math.min(evaluation.getBlackCount(), minEvalutation.getBlackCount())){
+					minEvalutation = evaluation;
 				}
-				node.setBeta(Math.min(minChild.getValue(), evaluation.getValue()));
-				if (node.getAlphaValue() >= node.getBetaValue()){
+				if (alpha >= beta){
 					break;
 				}
+				beta = Math.min(minEvalutation.getBlackCount(), evaluation.getBlackCount());
 			}
-			return minChild;
+			return minEvalutation;
 		}
 	}
 
-	public static ExampleMove minValue(MinMaxNode node){
 
-		return null;
-	}
-
-	public static ExampleMove maxValue(MinMaxNode node){
-
-		return null;
-	}
-
-
-	public static MinMaxNode createMinMaxTree(GameBoardState gameState, PlayerTurn playerTurn) {
-		MinMaxNode root = new MinMaxNode(gameState);
-
-		Stack<MinMaxNode> treeStack = new Stack<>();
-		treeStack.push(root);
+	public static GameBoardState createMinMaxTree(GameBoardState gameState, PlayerTurn playerTurn) {
+		Stack<GameBoardState> treeStack = new Stack<>();
+		treeStack.push(gameState);
 
 		int dept = 0;
 		while(!treeStack.isEmpty() && dept < MAX_DEPTH){
-			MinMaxNode currentNode = treeStack.pop();
-			GameBoardState currentNodeGameState = currentNode.getState();
+			GameBoardState currentNodeGameState = treeStack.pop();
 
-			List<ObjectiveWrapper> moves = getAvailableMoves(currentNode.getState(), playerTurn);
+			List<ObjectiveWrapper> moves = getAvailableMoves(currentNodeGameState, playerTurn);
 
-			if (currentNode.getIsMax()){
+			//Fixa här senare!
+			/*
+			if (currentNodeGameState.getIsMax()){
 				moves.sort(new Comparator<ObjectiveWrapper>() {
 					@Override
 					public int compare(ObjectiveWrapper o1, ObjectiveWrapper o2) {
@@ -316,23 +305,20 @@ public class AgentController {
 						return Integer.compare(o1.getPath().size(), o2.getPath().size());
 					}
 				});
-			}
+			} */
 
 			if(moves.isEmpty()){
-				treeStack.push(new MinMaxNode(currentNodeGameState, currentNode));
+				treeStack.push(currentNodeGameState);
 			} else {
 				for (ObjectiveWrapper move : moves) {
 					GameBoardState newState = getNewState(currentNodeGameState, move);
-
-					MinMaxNode newNode = new MinMaxNode(newState, currentNode); //currentNode = parent
-					stateHashMap.put(newState, newNode);
-
-					treeStack.push(newNode);
+					currentNodeGameState.addChildState(newState);
+					treeStack.push(newState);
 				}
 			}
 			dept++;
 		}
-		return root;
+		return gameState;
 	}
 	/**
 	 *hit
