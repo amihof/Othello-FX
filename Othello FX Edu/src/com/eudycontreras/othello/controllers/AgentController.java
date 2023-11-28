@@ -52,8 +52,9 @@ public class AgentController {
 	/**
 	 * hashmap vi har skapat
 	 */
-	public static int MAX_DEPTH = 10;
-	
+	public static int MAX_DEPTH = 4;
+
+	public static Agent agent;
 	
 	public static final int NEIGHBOR_OFFSET_X[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 	public static final int NEIGHBOR_OFFSET_Y[] = {0, 1, 1, 1, 0, -1, -1, -1};
@@ -153,7 +154,7 @@ public class AgentController {
 			return;
 		}
 		
-		Agent agent = getAgent(agentTurn);
+		agent = getAgent(agentTurn);
 		
 		
 		GameBoardState root = gameBoard.getGameState();
@@ -179,7 +180,7 @@ public class AgentController {
 					agent.getReachedLeafNodes(), 
 					agent.getPrunedCounter(), 
 					agent.getNodesExamined());
-			
+
 			
 			if(OthelloSettings.DEBUG_GAME){
 				System.out.println("SEARCH DEPTH: " + agent.getSearchDepth());
@@ -219,6 +220,7 @@ public class AgentController {
 	}
 
 	public static ExampleMove getMove(GameBoardState gameState, PlayerTurn playerTurn){
+		nodesExamined = 0;
 
 		/*if (stateHashMap.containsKey(gameState)){
 			return AgentController.findMove(stateHashMap.get(gameState));
@@ -244,29 +246,39 @@ public class AgentController {
 	 * @param depth
 	 * @return
 	 */
+
+	public static int pruned = 0;
+	public static int nodesExamined = 0;
+	public static int depth = 0;
+
 	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer){
 		if (depth == MAX_DEPTH-1 || node.isTerminal()){
+			agent.setSearchDepth(depth);
 			return node; // Kom tillbaka hit sen!
 		}
 
 		if (maximizingPlayer){
 			for (GameBoardState child : node.getChildStates()) {
+				agent.setNodesExamined(nodesExamined++);
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false);
 				if(node.getWhiteCount() != Math.max(evaluation.getWhiteCount(), node.getWhiteCount())){
 					node = evaluation;
 				}
 				if (alpha >= beta){
+					agent.setPrunedCounter(pruned++);
 					break;
 				}
 				alpha = Math.max(node.getWhiteCount(), evaluation.getWhiteCount()); //Math.max(maxEvaluation, evaluation.getValue());
 			}
 		} else{
 			for (GameBoardState child : node.getChildStates()) {
+				agent.setNodesExamined(nodesExamined++);
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true);
 				if(node.getWhiteCount() != Math.min(evaluation.getWhiteCount(), node.getWhiteCount())){
 					node = evaluation;
 				}
 				if (alpha >= beta){
+					agent.setPrunedCounter(pruned++);
 					break;
 				}
 				beta = Math.min(node.getWhiteCount(), evaluation.getWhiteCount());
@@ -277,44 +289,26 @@ public class AgentController {
 
 
 	public static GameBoardState createMinMaxTree(GameBoardState gameState, PlayerTurn playerTurn) {
-		Stack<GameBoardState> treeStack = new Stack<>();
-		treeStack.push(gameState);
+		Queue<GameBoardState> treeQueue = new LinkedList<>();
+		treeQueue.add(gameState);
+		gameState.setDepth(1);
 
-		int dept = 0;
-		while(!treeStack.isEmpty() && dept < MAX_DEPTH-1){
-			GameBoardState currentNodeGameState = treeStack.pop();
+		while(!treeQueue.isEmpty()){
+			GameBoardState currentNodeGameState = treeQueue.poll();
+			if (currentNodeGameState.getDepth() < MAX_DEPTH){
+				List<ObjectiveWrapper> moves = getAvailableMoves(currentNodeGameState, playerTurn);
 
-			List<ObjectiveWrapper> moves = getAvailableMoves(currentNodeGameState, playerTurn);
-
-			//Fixa här senare!
-			/*
-			if (currentNodeGameState.getIsMax()){
-				moves.sort(new Comparator<ObjectiveWrapper>() {
-					@Override
-					public int compare(ObjectiveWrapper o1, ObjectiveWrapper o2) {
-						return Integer.compare(o2.getPath().size(), o1.getPath().size());
+				if(moves.isEmpty()){
+					treeQueue.add(currentNodeGameState);
+				} else {
+					for (ObjectiveWrapper move : moves) {
+						GameBoardState newState = getNewState(currentNodeGameState, move);
+						newState.setDepth(currentNodeGameState.getDepth()+1);
+						currentNodeGameState.addChildState(newState);
+						treeQueue.add(newState);
 					}
-				});
-			}else {
-				moves.sort(new Comparator<ObjectiveWrapper>() {
-					@Override
-					public int compare(ObjectiveWrapper o1, ObjectiveWrapper o2) {
-						return Integer.compare(o1.getPath().size(), o2.getPath().size());
-					}
-				});
-			} */
-
-
-			if(moves.isEmpty()){
-				treeStack.push(currentNodeGameState);
-			} else {
-				for (ObjectiveWrapper move : moves) {
-					GameBoardState newState = getNewState(currentNodeGameState, move);
-					currentNodeGameState.addChildState(newState);
-					treeStack.push(newState);
 				}
 			}
-			dept++;
 		}
 		return gameState;
 	}
