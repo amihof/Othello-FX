@@ -52,7 +52,7 @@ public class AgentController {
 	/**
 	 * hashmap vi har skapat
 	 */
-	public static int MAX_DEPTH = 4;
+	public static int MAX_DEPTH = 6;
 
 	public static Agent agent;
 	
@@ -222,19 +222,13 @@ public class AgentController {
 	public static ExampleMove getMove(GameBoardState gameState, PlayerTurn playerTurn){
 		nodesExamined = 0;
 
-		/*if (stateHashMap.containsKey(gameState)){
-			return AgentController.findMove(stateHashMap.get(gameState));
-		}
-		else { */
-			GameBoardState root = createMinMaxTree(gameState, playerTurn);
-
-			return AgentController.findMove(root);
+		return AgentController.findMove(gameState, playerTurn);
 		//}
 	}
 
-	public static ExampleMove findMove(GameBoardState node){
+	public static ExampleMove findMove(GameBoardState node, PlayerTurn playerTurn){
 
-		GameBoardState state = alphaBetaPruning(node,0, MIN_VALUE, MAX_VALUE, true);
+		GameBoardState state = alphaBetaPruning(node,0, MIN_VALUE, MAX_VALUE, true, playerTurn);
 
 		ObjectiveWrapper wrapper = state.getLeadingMove();
 		return new ExampleMove(wrapper);
@@ -251,16 +245,20 @@ public class AgentController {
 	public static int nodesExamined = 0;
 	public static int depth = 0;
 
-	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer){
+	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer, PlayerTurn playerTurn){
 		if (depth == MAX_DEPTH-1 || node.isTerminal()){
 			agent.setSearchDepth(depth);
 			return node; // Kom tillbaka hit sen!
 		}
 
+		List<ObjectiveWrapper> moves = getAvailableMoves(node, playerTurn);
+
+
 		if (maximizingPlayer){
-			for (GameBoardState child : node.getChildStates()) {
+			for (ObjectiveWrapper move : moves) {
+				GameBoardState child = getNewState(node, move);
 				agent.setNodesExamined(nodesExamined++);
-				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false);
+				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false, playerTurn);
 				if(node.getWhiteCount() != Math.max(evaluation.getWhiteCount(), node.getWhiteCount())){
 					node = evaluation;
 				}
@@ -271,9 +269,10 @@ public class AgentController {
 				alpha = Math.max(node.getWhiteCount(), evaluation.getWhiteCount()); //Math.max(maxEvaluation, evaluation.getValue());
 			}
 		} else{
-			for (GameBoardState child : node.getChildStates()) {
+			for (ObjectiveWrapper move : moves) {
+				GameBoardState child = getNewState(node, move);
 				agent.setNodesExamined(nodesExamined++);
-				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true);
+				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true, playerTurn);
 				if(node.getWhiteCount() != Math.min(evaluation.getWhiteCount(), node.getWhiteCount())){
 					node = evaluation;
 				}
@@ -287,31 +286,6 @@ public class AgentController {
 		return node;
 	}
 
-
-	public static GameBoardState createMinMaxTree(GameBoardState gameState, PlayerTurn playerTurn) {
-		Queue<GameBoardState> treeQueue = new LinkedList<>();
-		treeQueue.add(gameState);
-		gameState.setDepth(1);
-
-		while(!treeQueue.isEmpty()){
-			GameBoardState currentNodeGameState = treeQueue.poll();
-			if (currentNodeGameState.getDepth() < MAX_DEPTH){
-				List<ObjectiveWrapper> moves = getAvailableMoves(currentNodeGameState, playerTurn);
-
-				if(moves.isEmpty()){
-					treeQueue.add(currentNodeGameState);
-				} else {
-					for (ObjectiveWrapper move : moves) {
-						GameBoardState newState = getNewState(currentNodeGameState, move);
-						newState.setDepth(currentNodeGameState.getDepth()+1);
-						currentNodeGameState.addChildState(newState);
-						treeQueue.add(newState);
-					}
-				}
-			}
-		}
-		return gameState;
-	}
 	/**
 	 *hit
 	 */
