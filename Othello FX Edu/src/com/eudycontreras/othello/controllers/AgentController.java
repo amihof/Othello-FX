@@ -221,6 +221,7 @@ public class AgentController {
 
 	public static ExampleMove getMove(GameBoardState gameState, PlayerTurn playerTurn){
 		nodesExamined = 0;
+		pruned = 0;
 
 		return AgentController.findMove(gameState, playerTurn);
 		//}
