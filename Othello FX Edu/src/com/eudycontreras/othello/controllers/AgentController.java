@@ -244,6 +244,7 @@ public class AgentController {
 	public static int nodesExamined = 0;
 
 	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer, PlayerTurn playerTurn){
+		agent.setNodesExamined(nodesExamined++);
 		if (depth == MAX_DEPTH-1 || node.isTerminal()){
 			agent.setSearchDepth(depth);
 			return node;
@@ -255,36 +256,41 @@ public class AgentController {
 		if (maximizingPlayer){
 			for (ObjectiveWrapper move : moves) {
 				GameBoardState child = getNewState(node, move);
-				agent.setNodesExamined(nodesExamined++);
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false, playerTurn);
 				int whiteCountNode = (int) node.getGameBoard().getCount(BoardCellState.WHITE);
 				int whiteCountEvaluation = (int) evaluation.getGameBoard().getCount(BoardCellState.WHITE);
 				if(whiteCountNode != Math.max(whiteCountEvaluation, whiteCountNode)){
 					node = evaluation;
 				}
+
+				alpha = (int) Math.max(alpha, node.getGameBoard().getCount(BoardCellState.WHITE)); //Math.max(maxEvaluation, evaluation.getValue());
+
 				if (alpha >= beta){
 					agent.setPrunedCounter(pruned++);
 					break;
 				}
-				alpha = (int) Math.max(alpha, node.getGameBoard().getCount(BoardCellState.WHITE)); //Math.max(maxEvaluation, evaluation.getValue());
+
 			}
 		} else{
 			for (ObjectiveWrapper move : moves) {
 				GameBoardState child = getNewState(node, move);
-				agent.setNodesExamined(nodesExamined++);
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true, playerTurn);
 				int whiteCountNode = (int) node.getGameBoard().getCount(BoardCellState.WHITE);
 				int whiteCountEvaluation = (int) evaluation.getGameBoard().getCount(BoardCellState.WHITE);
 				if(whiteCountNode != Math.min(whiteCountEvaluation, whiteCountNode)){
 					node = evaluation;
 				}
+
+				beta = (int) Math.min(beta, node.getGameBoard().getCount(BoardCellState.WHITE));
+
 				if (alpha >= beta){
 					agent.setPrunedCounter(pruned++);
 					break;
 				}
-				beta = (int) Math.min(beta, node.getGameBoard().getCount(BoardCellState.WHITE));
+
 			}
 		}
+
 		return node;
 	}
 
@@ -294,8 +300,10 @@ public class AgentController {
 
 	public static MoveWrapper getExampleMove(GameBoardState gameState, PlayerTurn playerTurn) {
 		int value = new Random().nextInt(3);
-		
-		if(value == 0){
+
+		return AgentController.findSafeMove(gameState, playerTurn);
+
+		/*if(value == 0){
 			return AgentController.findBestMove(gameState, playerTurn);
 		}else if(value == 1){
 			return AgentController.findSafeMove(gameState, playerTurn);
@@ -303,7 +311,7 @@ public class AgentController {
 			return AgentController.findRandomMove(gameState, playerTurn);
 		}
 
-		return AgentController.findBestMove(gameState, playerTurn);
+		return AgentController.findBestMove(gameState, playerTurn);*/
 	}
 	
 	/**
