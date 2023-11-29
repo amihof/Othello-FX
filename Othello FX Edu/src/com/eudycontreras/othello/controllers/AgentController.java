@@ -49,10 +49,8 @@ public class AgentController {
 
 	public static final boolean PRINT_BOARD_STATES = false;
 
-	/**
-	 * hashmap vi har skapat
-	 */
-	public static int MAX_DEPTH = 6;
+
+	public static int MAX_DEPTH = 8;
 
 	public static Agent agent;
 	
@@ -244,12 +242,11 @@ public class AgentController {
 
 	public static int pruned = 0;
 	public static int nodesExamined = 0;
-	public static int depth = 0;
 
 	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer, PlayerTurn playerTurn){
 		if (depth == MAX_DEPTH-1 || node.isTerminal()){
 			agent.setSearchDepth(depth);
-			return node; // Kom tillbaka hit sen!
+			return node;
 		}
 
 		List<ObjectiveWrapper> moves = getAvailableMoves(node, playerTurn);
@@ -260,28 +257,32 @@ public class AgentController {
 				GameBoardState child = getNewState(node, move);
 				agent.setNodesExamined(nodesExamined++);
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta,false, playerTurn);
-				if(node.getWhiteCount() != Math.max(evaluation.getWhiteCount(), node.getWhiteCount())){
+				int whiteCountNode = (int) node.getGameBoard().getCount(BoardCellState.WHITE);
+				int whiteCountEvaluation = (int) evaluation.getGameBoard().getCount(BoardCellState.WHITE);
+				if(whiteCountNode != Math.max(whiteCountEvaluation, whiteCountNode)){
 					node = evaluation;
 				}
 				if (alpha >= beta){
 					agent.setPrunedCounter(pruned++);
 					break;
 				}
-				alpha = Math.max(node.getWhiteCount(), evaluation.getWhiteCount()); //Math.max(maxEvaluation, evaluation.getValue());
+				alpha = (int) Math.max(alpha, node.getGameBoard().getCount(BoardCellState.WHITE)); //Math.max(maxEvaluation, evaluation.getValue());
 			}
 		} else{
 			for (ObjectiveWrapper move : moves) {
 				GameBoardState child = getNewState(node, move);
 				agent.setNodesExamined(nodesExamined++);
 				GameBoardState evaluation = alphaBetaPruning(child, depth+1, alpha, beta, true, playerTurn);
-				if(node.getWhiteCount() != Math.min(evaluation.getWhiteCount(), node.getWhiteCount())){
+				int whiteCountNode = (int) node.getGameBoard().getCount(BoardCellState.WHITE);
+				int whiteCountEvaluation = (int) evaluation.getGameBoard().getCount(BoardCellState.WHITE);
+				if(whiteCountNode != Math.min(whiteCountEvaluation, whiteCountNode)){
 					node = evaluation;
 				}
 				if (alpha >= beta){
 					agent.setPrunedCounter(pruned++);
 					break;
 				}
-				beta = Math.min(node.getWhiteCount(), evaluation.getWhiteCount());
+				beta = (int) Math.min(beta, node.getGameBoard().getCount(BoardCellState.WHITE));
 			}
 		}
 		return node;
