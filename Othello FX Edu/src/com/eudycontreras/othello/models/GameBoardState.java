@@ -42,7 +42,6 @@ public class GameBoardState {
 	
 	private List<GameBoardState> childStates;
 
-	private int depth;
 
 	public GameBoardState(GameBoard gameBoard){
 		this(gameBoard, false);
@@ -54,9 +53,6 @@ public class GameBoardState {
 		this.childStates = new ArrayList<>();
 	}
 
-	public void setDepth(int depth){
-		this.depth = depth;
-	}
 	
 	public static GameBoardState createBoardState(GameBoardCell[][] cells){
 		return createBoardState(cells,false);
@@ -311,7 +307,4 @@ public class GameBoardState {
 		};
 	}
 
-	public int getDepth() {
-		return depth;
-	}
 }

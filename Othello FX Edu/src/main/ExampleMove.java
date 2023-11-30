@@ -26,7 +26,7 @@ import com.eudycontreras.othello.capsules.ObjectiveWrapper;
  *
  */
 public class ExampleMove extends AgentMove{
-
+	
 	public ExampleMove(ObjectiveWrapper objectiveWrapper) {
 		//System.out.println("Column:" + objectiveWrapper.getObjectiveCell().getCol());
 		//System.out.println("Row:" + objectiveWrapper.getObjectiveCell().getRow());
@@ -44,6 +44,10 @@ public class ExampleMove extends AgentMove{
 	/**
 	 * Define a comparator for comparing the 
 	 * reward of a move.
+	 */
+
+	/**
+	 * Vi använder inte eftersom vi jämför direkt i AgentController
 	 */
 	@Override
 	public int compareTo(AgentMove move) {

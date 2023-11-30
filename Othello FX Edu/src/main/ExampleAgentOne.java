@@ -52,6 +52,10 @@ public class ExampleAgentOne extends Agent{
 	 * @param gameState
 	 * @return
 	 */
+
+	/**
+	 * Denna har vi ändrat, nu hämtar man "getMove" istället för "getExampleMove"
+	 */
 	private AgentMove getExampleMove(GameBoardState gameState){
 		
 		int waitTime = UserSettings.MIN_SEARCH_TIME; // 1.5 seconds

@@ -50,9 +50,15 @@ public class AgentController {
 	public static final boolean PRINT_BOARD_STATES = false;
 
 
+	/**
+	 * Detta har vi lagt till:
+	 */
 	public static int MAX_DEPTH = 8;
-
+	/**
+	 * Detta har vi lagt till:
+	 */
 	public static Agent agent;
+
 	
 	public static final int NEIGHBOR_OFFSET_X[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 	public static final int NEIGHBOR_OFFSET_Y[] = {0, 1, 1, 1, 0, -1, -1, -1};
@@ -217,6 +223,9 @@ public class AgentController {
 		return getMove(gameState, PlayerTurn.PLAYER_ONE);
 	}
 
+	/**
+	 * Detta har vi ändrat:
+	 */
 	public static ExampleMove getMove(GameBoardState gameState, PlayerTurn playerTurn){
 		nodesExamined = 0;
 		pruned = 0;
@@ -225,6 +234,9 @@ public class AgentController {
 		//}
 	}
 
+	/**
+	 * Detta har vi ändrat:
+	 */
 	public static ExampleMove findMove(GameBoardState node, PlayerTurn playerTurn){
 
 		GameBoardState state = alphaBetaPruning(node,0, MIN_VALUE, MAX_VALUE, true, playerTurn);
@@ -234,15 +246,14 @@ public class AgentController {
 	}
 
 	/**
-	 * inte klar
-	 * @param node
-	 * @param depth
-	 * @return
+	 * Detta har vi lagt till:
 	 */
-
 	public static int pruned = 0;
 	public static int nodesExamined = 0;
 
+	/**
+	 * Detta har vi lagt till:
+	 */
 	public static GameBoardState alphaBetaPruning(GameBoardState node, int depth, int alpha, int beta, boolean maximizingPlayer, PlayerTurn playerTurn){
 		agent.setNodesExamined(nodesExamined++);
 		if (depth == MAX_DEPTH-1 || node.isTerminal()){
@@ -294,9 +305,7 @@ public class AgentController {
 		return node;
 	}
 
-	/**
-	 *hit
-	 */
+
 
 	public static MoveWrapper getExampleMove(GameBoardState gameState, PlayerTurn playerTurn) {
 		int value = new Random().nextInt(3);

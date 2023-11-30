@@ -52,7 +52,8 @@ public class AgentManager extends Application{
 	 */
 	@Override
 	public void start(Stage primaryStage) {
-		new Othello(primaryStage, new ExampleAgentOne("Agent A"));
+		new Othello(primaryStage, new ExampleAgentOne("Agent A")); //Startar vår AB-pruning
+
 		//new Othello(primaryStage, new ExampleAgentOne("Agent A"), new ExampleAgentTwo("Agent 2"));
 		//new Othello(primaryStage, new ExampleAgentB());
 		//new Othello(primaryStage, new ExampleAgentC());
