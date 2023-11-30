@@ -231,7 +231,6 @@ public class AgentController {
 		pruned = 0;
 
 		return AgentController.findMove(gameState, playerTurn);
-		//}
 	}
 
 	/**
