@@ -30,8 +30,9 @@ public class ExampleMove extends AgentMove{
 	public ExampleMove(ObjectiveWrapper objectiveWrapper) {
 		//System.out.println("Column:" + objectiveWrapper.getObjectiveCell().getCol());
 		//System.out.println("Row:" + objectiveWrapper.getObjectiveCell().getRow());
-		setObjectiveInformation(objectiveWrapper);
-
+		if (objectiveWrapper != null){
+			setObjectiveInformation(objectiveWrapper);
+		}
 	}
 
 	public void setObjectiveInformation(ObjectiveWrapper objective){
